@@ -109,17 +109,17 @@ export const OfferScene: React.FC = () => {
         }}
       >
         <DisciplinePill
-          label="🎹 MUSIQUE & CHANT"
+          label="Éveil Musical"
           backgroundColor={DARK}
           delay={26}
         />
         <DisciplinePill
-          label="🎤 ÉVEIL & CHANT"
+          label="Musique & Chant"
           backgroundColor={ORANGE}
           delay={42}
         />
         <DisciplinePill
-          label="🎨 DESSIN & STREET ART"
+          label="Dessin & Street-Art"
           backgroundColor={DARK}
           delay={58}
         />

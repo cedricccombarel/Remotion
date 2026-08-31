@@ -8,6 +8,7 @@ import { OfferScene } from "./scenes/OfferScene";
 import { CtaScene } from "./scenes/CtaScene";
 import { AmbientBackground } from "./components/AmbientBackground";
 import { PersistentHeader } from "./components/PersistentHeader";
+import { BottomLogo } from "./components/BottomLogo";
 
 const GREEN = "#0F7462";
 
@@ -40,6 +41,7 @@ export const GrooveGraffAncv: React.FC = () => {
         </TransitionSeries.Sequence>
       </TransitionSeries>
       <PersistentHeader />
+      <BottomLogo />
     </AbsoluteFill>
   );
 };
