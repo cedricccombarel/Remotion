@@ -1,29 +1,45 @@
 import React from "react";
 import { Audio } from "@remotion/media";
-import { Series, staticFile } from "remotion";
+import { AbsoluteFill, staticFile } from "remotion";
+import { TransitionSeries, linearTiming } from "@remotion/transitions";
+import { fade } from "@remotion/transitions/fade";
 import { HookScene } from "./scenes/HookScene";
 import { OfferScene } from "./scenes/OfferScene";
 import { CtaScene } from "./scenes/CtaScene";
+import { AmbientBackground } from "./components/AmbientBackground";
+import { PersistentHeader } from "./components/PersistentHeader";
+
+const GREEN = "#0F7462";
 
 export const GrooveGraffAncv: React.FC = () => {
   return (
-    <>
+    <AbsoluteFill style={{ backgroundColor: GREEN }}>
       <Audio
         src={staticFile("audio/boom-bap-loop.mp3")}
         volume={0.35}
         loop
       />
-      <Series>
-        <Series.Sequence durationInFrames={90} name="Hook">
+      <AmbientBackground />
+      <TransitionSeries>
+        <TransitionSeries.Sequence durationInFrames={115} name="Hook">
           <HookScene />
-        </Series.Sequence>
-        <Series.Sequence durationInFrames={120} name="Offer">
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition
+          presentation={fade()}
+          timing={linearTiming({ durationInFrames: 20 })}
+        />
+        <TransitionSeries.Sequence durationInFrames={145} name="Offer">
           <OfferScene />
-        </Series.Sequence>
-        <Series.Sequence durationInFrames={90} name="Cta">
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition
+          presentation={fade()}
+          timing={linearTiming({ durationInFrames: 20 })}
+        />
+        <TransitionSeries.Sequence durationInFrames={140} name="Cta">
           <CtaScene />
-        </Series.Sequence>
-      </Series>
-    </>
+        </TransitionSeries.Sequence>
+      </TransitionSeries>
+      <PersistentHeader />
+    </AbsoluteFill>
   );
 };

@@ -12,7 +12,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="Hook"
           component={HookScene}
-          durationInFrames={90}
+          durationInFrames={115}
           fps={30}
           width={1080}
           height={1920}
@@ -20,7 +20,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="Offer"
           component={OfferScene}
-          durationInFrames={120}
+          durationInFrames={145}
           fps={30}
           width={1080}
           height={1920}
@@ -28,7 +28,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="Cta"
           component={CtaScene}
-          durationInFrames={90}
+          durationInFrames={140}
           fps={30}
           width={1080}
           height={1920}
@@ -37,7 +37,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="GrooveGraffAncv"
         component={GrooveGraffAncv}
-        durationInFrames={300}
+        durationInFrames={360}
         fps={30}
         width={1080}
         height={1920}

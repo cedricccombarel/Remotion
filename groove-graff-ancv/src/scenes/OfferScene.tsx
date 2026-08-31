@@ -2,7 +2,6 @@ import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { antonFontFamily, schibstedGroteskFontFamily } from "../fonts";
 
-const GREEN = "#0F7462";
 const ORANGE = "#FF8C00";
 const DARK = "#1D231C";
 const WHITE = "#FFFFFF";
@@ -73,7 +72,6 @@ export const OfferScene: React.FC = () => {
       style={{
         width: "100%",
         height: "100%",
-        backgroundColor: GREEN,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
