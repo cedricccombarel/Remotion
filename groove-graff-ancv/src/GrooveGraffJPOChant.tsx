@@ -65,16 +65,39 @@ export const GrooveGraffJPOChant: React.FC = () => {
   });
 
   const badgeSpring = spring({ frame, fps, config: { damping: 14, mass: 0.6 } });
+  const badgePulseLoopFrame = Math.max(0, frame - 20);
+  const badgePulseScale = interpolate(
+    badgePulseLoopFrame % 30,
+    [0, 15, 30],
+    [1, 1.07, 1],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      output: "perceptual-scale",
+    },
+  );
+  const badgePulseOpacity = interpolate(
+    badgePulseLoopFrame % 30,
+    [0, 15, 30],
+    [1, 0.92, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
   const titleSpring = spring({
     frame: frame - 8,
     fps,
     config: { damping: 12, mass: 0.7 },
   });
-  const dateSpring = spring({
+  const subtitleSpring = spring({
     frame: frame - 18,
     fps,
     config: { damping: 14, mass: 0.6 },
   });
+  const blinkOpacity = interpolate(
+    frame % 60,
+    [0, 30, 60],
+    [0.35, 1, 0.35],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
 
   const titleSlide2 = interpolate(frame, [85, 105], [120, 0], {
     extrapolateLeft: "clamp",
@@ -110,9 +133,9 @@ export const GrooveGraffJPOChant: React.FC = () => {
   });
   const buttonLoopFrame = Math.max(0, frame - 240);
   const buttonPulse = interpolate(
-    buttonLoopFrame % 40,
-    [0, 20, 40],
-    [1, 1.05, 1],
+    buttonLoopFrame % 30,
+    [0, 15, 30],
+    [1, 1.1, 1],
     {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
@@ -180,31 +203,34 @@ export const GrooveGraffJPOChant: React.FC = () => {
             backgroundColor: ORANGE,
             borderRadius: 999,
             padding: "16px 40px",
-            scale: interpolate(badgeSpring, [0, 1], [0.4, 1], {
-              output: "perceptual-scale",
-            }),
-            opacity: interpolate(badgeSpring, [0, 1], [0, 1], {
-              extrapolateRight: "clamp",
-            }),
+            scale:
+              interpolate(badgeSpring, [0, 1], [0.4, 1], {
+                output: "perceptual-scale",
+              }) * badgePulseScale,
+            opacity:
+              interpolate(badgeSpring, [0, 1], [0, 1], {
+                extrapolateRight: "clamp",
+              }) * badgePulseOpacity,
           }}
         >
           <span
             style={{
               fontFamily: schibstedGroteskFontFamily,
               fontWeight: 700,
-              fontSize: 32,
+              fontSize: 30,
               color: WHITE,
               letterSpacing: 2,
+              whiteSpace: "nowrap",
             }}
           >
-            100% GRATUIT
+            🚨 DERNIER APPEL !
           </span>
         </div>
 
         <div
           style={{
-            marginTop: 56,
-            padding: "0 70px",
+            marginTop: 48,
+            padding: "0 56px",
             textAlign: "center",
             translate: `0px ${interpolate(titleSpring, [0, 1], [90, 0])}px`,
             opacity: interpolate(titleSpring, [0, 1], [0, 1], {
@@ -215,10 +241,33 @@ export const GrooveGraffJPOChant: React.FC = () => {
           <span
             style={{
               fontFamily: antonFontFamily,
-              fontSize: 104,
-              lineHeight: 1.05,
-              color: WHITE,
+              fontSize: 132,
+              lineHeight: 0.98,
+              color: ORANGE,
               textTransform: "uppercase",
+            }}
+          >
+            C'est ce dimanche !
+          </span>
+        </div>
+
+        <div
+          style={{
+            marginTop: 28,
+            padding: "0 70px",
+            textAlign: "center",
+            opacity: interpolate(subtitleSpring, [0, 1], [0, 1], {
+              extrapolateRight: "clamp",
+            }),
+            translate: `0px ${interpolate(subtitleSpring, [0, 1], [30, 0])}px`,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: schibstedGroteskFontFamily,
+              fontWeight: 700,
+              fontSize: 40,
+              color: WHITE,
             }}
           >
             Journée Découverte Chant 🎤
@@ -227,24 +276,19 @@ export const GrooveGraffJPOChant: React.FC = () => {
 
         <div
           style={{
-            marginTop: 32,
-            opacity: interpolate(dateSpring, [0, 1], [0, 1], {
-              extrapolateRight: "clamp",
-            }),
-            translate: `0px ${interpolate(dateSpring, [0, 1], [30, 0])}px`,
+            marginTop: 40,
+            opacity: blinkOpacity,
           }}
         >
           <span
             style={{
               fontFamily: schibstedGroteskFontFamily,
-              fontWeight: 700,
-              fontSize: 38,
+              fontWeight: 600,
+              fontSize: 26,
               color: LIGHT_AMBER,
-              letterSpacing: 1,
-              textTransform: "uppercase",
             }}
           >
-            Ce dimanche 6 septembre
+            Dernières places disponibles...
           </span>
         </div>
       </AbsoluteFill>
@@ -407,13 +451,13 @@ export const GrooveGraffJPOChant: React.FC = () => {
             <span
               style={{
                 fontFamily: antonFontFamily,
-                fontSize: 76,
-                lineHeight: 1,
+                fontSize: 62,
+                lineHeight: 1.05,
                 color: WHITE,
                 textTransform: "uppercase",
               }}
             >
-              Places limitées !
+              Vite, prends ta place !
             </span>
           </div>
 
