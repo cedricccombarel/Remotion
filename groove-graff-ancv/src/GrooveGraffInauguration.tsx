@@ -16,11 +16,12 @@ const BEIGE = "#E6E5E0";
 const ORANGE = "#FF8C00";
 const WHITE = "#FFFFFF";
 const RED = "#E23A2F";
+const YELLOW = "#FFD166";
 
 const TICKER_TEXT =
-  "⚠️ CE SAMEDI • COURBEVOIE • ENTRÉE GRATUITE • PLACES LIMITÉES • ";
-const TICKER_COPY_WIDTH = 1000;
-const TICKER_PERIOD = 150;
+  "🎉 INAUGURATION OFFICIELLE • CE SAMEDI • COURBEVOIE • ENTRÉE GRATUITE • PLACES LIMITÉES • ";
+const TICKER_COPY_WIDTH = 1460;
+const TICKER_PERIOD = 220;
 
 const PUNCHY = { damping: 7, stiffness: 220, mass: 0.4 };
 
@@ -231,8 +232,9 @@ export const GrooveGraffInauguration: React.FC = () => {
   const flashA = spring({ frame, fps, config: PUNCHY });
   const flashB = spring({ frame: frame - 10, fps, config: PUNCHY });
 
+  const brandSpring = spring({ frame: frame - 20, fps, config: PUNCHY });
   const slam = spring({
-    frame: frame - 20,
+    frame: frame - 26,
     fps,
     config: { damping: 6, mass: 0.3 },
   });
@@ -286,8 +288,10 @@ export const GrooveGraffInauguration: React.FC = () => {
         {frame < 10 ? (
           <span
             style={{
+              padding: "0 50px",
+              textAlign: "center",
               fontFamily: antonFontFamily,
-              fontSize: 150,
+              fontSize: 108,
               lineHeight: 1,
               color: ORANGE,
               textTransform: "uppercase",
@@ -296,15 +300,17 @@ export const GrooveGraffInauguration: React.FC = () => {
               }),
             }}
           >
-            Ce samedi
+            Inauguration officielle
           </span>
         ) : null}
 
         {frame >= 10 && frame < 20 ? (
           <span
             style={{
+              padding: "0 50px",
+              textAlign: "center",
               fontFamily: antonFontFamily,
-              fontSize: 150,
+              fontSize: 88,
               lineHeight: 1,
               color: WHITE,
               textTransform: "uppercase",
@@ -313,38 +319,67 @@ export const GrooveGraffInauguration: React.FC = () => {
               }),
             }}
           >
-            16h - 18h
+            Ce samedi • 16h - 18h
           </span>
         ) : null}
 
         {frame >= 20 ? (
           <div
             style={{
-              padding: "0 60px",
-              textAlign: "center",
-              rotate: `${interpolate(slam, [0, 1], [-3, 0], {
-                extrapolateLeft: "clamp",
-              })}deg`,
-              scale: interpolate(slam, [0, 1], [0.55, 1], {
-                extrapolateLeft: "clamp",
-              }),
-              opacity: interpolate(slam, [0, 0.5], [0, 1], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-              }),
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
             <span
               style={{
                 fontFamily: antonFontFamily,
-                fontSize: 128,
-                lineHeight: 1.05,
+                fontSize: 76,
+                lineHeight: 1,
                 color: WHITE,
                 textTransform: "uppercase",
+                letterSpacing: 2,
+                scale: interpolate(brandSpring, [0, 1], [0.6, 1], {
+                  extrapolateLeft: "clamp",
+                }),
+                opacity: interpolate(brandSpring, [0, 0.5], [0, 1], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                }),
               }}
             >
-              6 univers à vivre en 1 heure
+              Groove &amp; Graff
             </span>
+
+            <div
+              style={{
+                marginTop: 46,
+                padding: "0 60px",
+                textAlign: "center",
+                rotate: `${interpolate(slam, [0, 1], [-3, 0], {
+                  extrapolateLeft: "clamp",
+                })}deg`,
+                scale: interpolate(slam, [0, 1], [0.55, 1], {
+                  extrapolateLeft: "clamp",
+                }),
+                opacity: interpolate(slam, [0, 0.5], [0, 1], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                }),
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: antonFontFamily,
+                  fontSize: 128,
+                  lineHeight: 1.05,
+                  color: YELLOW,
+                  textTransform: "uppercase",
+                }}
+              >
+                6 univers à vivre en 1 heure
+              </span>
+            </div>
           </div>
         ) : null}
 
