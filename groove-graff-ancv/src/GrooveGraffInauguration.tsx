@@ -15,93 +15,198 @@ const DARK = "#1D231C";
 const BEIGE = "#E6E5E0";
 const ORANGE = "#FF8C00";
 const WHITE = "#FFFFFF";
-const AMBER = "#FFC670";
+const RED = "#E23A2F";
 
-type StepCardProps = {
-  readonly emoji: string;
-  readonly verb: string;
-  readonly label: string;
-  readonly backgroundColor: string;
-  readonly delay: number;
-};
+const TICKER_TEXT =
+  "⚠️ CE SAMEDI • COURBEVOIE • ENTRÉE GRATUITE • PLACES LIMITÉES • ";
+const TICKER_COPY_WIDTH = 1000;
+const TICKER_PERIOD = 150;
 
-const StepCard: React.FC<StepCardProps> = ({
-  emoji,
-  verb,
-  label,
-  backgroundColor,
-  delay,
-}) => {
+const PUNCHY = { damping: 7, stiffness: 220, mass: 0.4 };
+
+const Ticker: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
 
-  const cardSpring = spring({
-    frame: frame - delay,
-    fps,
-    config: { damping: 12, mass: 0.6 },
-  });
-
-  const onBeige = backgroundColor === BEIGE;
+  const shift = interpolate(
+    frame % TICKER_PERIOD,
+    [0, TICKER_PERIOD],
+    [0, -TICKER_COPY_WIDTH],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
 
   return (
     <div
       style={{
-        width: 460,
-        height: 232,
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: 68,
+        backgroundColor: DARK,
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          translate: `${shift}px 0px`,
+        }}
+      >
+        {[0, 1, 2, 3].map((copy) => (
+          <span
+            key={copy}
+            style={{
+              width: TICKER_COPY_WIDTH,
+              flexShrink: 0,
+              fontFamily: schibstedGroteskFontFamily,
+              fontWeight: 700,
+              fontSize: 26,
+              color: WHITE,
+              letterSpacing: 1,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {TICKER_TEXT}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+type UniverseCardProps = {
+  readonly index: number;
+  readonly title: string;
+  readonly subtitle: string;
+  readonly backgroundColor: string;
+  readonly titleColor: string;
+  readonly numeralColor: string;
+  readonly outlined?: boolean;
+};
+
+const UniverseCard: React.FC<UniverseCardProps> = ({
+  index,
+  title,
+  subtitle,
+  backgroundColor,
+  titleColor,
+  numeralColor,
+  outlined,
+}) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const pop = spring({
+    frame: frame - (50 + index * 5),
+    fps,
+    config: PUNCHY,
+  });
+
+  const focusStart = 100 + index * 15;
+  const focusScale = interpolate(
+    frame,
+    [focusStart, focusStart + 7, focusStart + 15],
+    [1, 1.08, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  const focusRing = interpolate(
+    frame,
+    [focusStart, focusStart + 7, focusStart + 15],
+    [0, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: 468,
+        height: 340,
+        boxSizing: "border-box",
         backgroundColor,
-        borderRadius: 28,
+        border: outlined ? "3px solid rgba(255,255,255,0.32)" : undefined,
+        borderRadius: 30,
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
-        gap: 6,
-        padding: "0 20px",
-        scale: interpolate(cardSpring, [0, 1], [0.55, 1], {
+        padding: "0 34px",
+        gap: 8,
+        scale:
+          interpolate(pop, [0, 1], [0.4, 1], { extrapolateLeft: "clamp" }) *
+          focusScale,
+        translate: `0px ${interpolate(pop, [0, 1], [70, 0], {
           extrapolateLeft: "clamp",
-          extrapolateRight: "clamp",
-          output: "perceptual-scale",
-        }),
-        opacity: interpolate(cardSpring, [0, 1], [0, 1], {
+        })}px`,
+        opacity: interpolate(pop, [0, 0.6], [0, 1], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
         }),
       }}
     >
-      <span style={{ fontSize: 50, lineHeight: 1 }}>{emoji}</span>
+      <span
+        style={{
+          position: "absolute",
+          bottom: -10,
+          right: 10,
+          fontFamily: antonFontFamily,
+          fontSize: 140,
+          lineHeight: 1,
+          color: numeralColor,
+          opacity: 0.2,
+        }}
+      >
+        {index + 1}
+      </span>
+
       <span
         style={{
           fontFamily: antonFontFamily,
-          fontSize: 38,
-          lineHeight: 1.1,
-          color: onBeige ? DARK : WHITE,
+          fontSize: 56,
+          lineHeight: 1,
+          color: titleColor,
           textTransform: "uppercase",
-          textAlign: "center",
         }}
       >
-        {verb}
-      </span>
-      <span
-        style={{
-          fontFamily: schibstedGroteskFontFamily,
-          fontWeight: 600,
-          fontSize: 25,
-          color: onBeige ? DARK : BEIGE,
-          textAlign: "center",
-        }}
-      >
-        {label}
+        {title}
       </span>
       <span
         style={{
           fontFamily: schibstedGroteskFontFamily,
           fontWeight: 700,
-          fontSize: 21,
-          color: onBeige ? DARK : ORANGE,
-          letterSpacing: 1,
+          fontSize: 28,
+          color: ORANGE,
         }}
       >
-        10 MIN
+        {subtitle}
       </span>
+      <span
+        style={{
+          fontFamily: schibstedGroteskFontFamily,
+          fontWeight: 600,
+          fontSize: 23,
+          color: titleColor,
+          opacity: 0.7,
+        }}
+      >
+        10 min
+      </span>
+
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          borderRadius: 30,
+          border: `5px solid ${ORANGE}`,
+          opacity: focusRing,
+        }}
+      />
     </div>
   );
 };
@@ -110,248 +215,161 @@ export const GrooveGraffInauguration: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const circleAY = interpolate(frame % 240, [0, 120, 240], [-28, 28, -28], {
+  const scene1Opacity = interpolate(frame, [48, 60], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const circleBY = interpolate(frame % 300, [0, 150, 300], [26, -26, 26], {
+  const scene2Opacity = interpolate(frame, [196, 210], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const circleCScale = interpolate(frame % 210, [0, 105, 210], [1, 1.09, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    output: "perceptual-scale",
-  });
-
-  const scene1Opacity =
-    interpolate(frame, [0, 15], [0, 1], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }) *
-    interpolate(frame, [60, 75], [1, 0], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-  const scene1ExitScale = interpolate(frame, [60, 75], [1, 0.78], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    output: "perceptual-scale",
-  });
-
-  const scene2Opacity =
-    interpolate(frame, [65, 80], [0, 1], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }) *
-    interpolate(frame, [205, 220], [1, 0], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-
-  const scene3Opacity = interpolate(frame, [210, 225], [0, 1], {
+  const scene3Opacity = interpolate(frame, [200, 212], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const badgeSpring = spring({ frame, fps, config: { damping: 12 } });
-  const titleSpring = spring({
-    frame: frame - 6,
+  const flashA = spring({ frame, fps, config: PUNCHY });
+  const flashB = spring({ frame: frame - 10, fps, config: PUNCHY });
+
+  const slam = spring({
+    frame: frame - 20,
     fps,
-    config: { damping: 12 },
-  });
-  const subtitleSpring = spring({
-    frame: frame - 14,
-    fps,
-    config: { damping: 12 },
+    config: { damping: 6, mass: 0.3 },
   });
 
-  const headerSlide2 = interpolate(frame, [65, 85], [70, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const headerOpacity2 = interpolate(frame, [65, 85], [0, 1], {
+  const badgeBlink = interpolate(frame % 20, [0, 10, 20], [1, 0.45, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const badge3Spring = spring({
-    frame: frame - 210,
-    fps,
-    config: { damping: 13 },
-  });
-  const card3Spring = spring({
-    frame: frame - 216,
-    fps,
-    config: { damping: 15, mass: 0.8 },
-  });
-  const title3Spring = spring({
-    frame: frame - 226,
-    fps,
-    config: { damping: 13 },
-  });
-  const ctaSpring = spring({
-    frame: frame - 238,
-    fps,
-    config: { damping: 9 },
-  });
-  const urlOpacity = interpolate(frame, [252, 266], [0, 1], {
+  const ctaZoom = spring({ frame: frame - 200, fps, config: PUNCHY });
+  const ctaTitleSpring = spring({ frame: frame - 210, fps, config: PUNCHY });
+  const ctaButtonSpring = spring({ frame: frame - 220, fps, config: PUNCHY });
+  const urlOpacity = interpolate(frame, [232, 244], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const infoOpacity = interpolate(frame, [262, 278], [0, 1], {
+  const footerOpacity = interpolate(frame, [244, 256], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const ctaPulse = interpolate(
-    Math.max(0, frame - 258) % 36,
-    [0, 18, 36],
-    [1, 1.05, 1],
-    {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-      output: "perceptual-scale",
-    },
-  );
+
+  const waveAScale = interpolate(frame % 30, [0, 30], [1, 1.75], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const waveAOpacity = interpolate(frame % 30, [0, 30], [0.55, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const waveBScale = interpolate((frame + 15) % 30, [0, 30], [1, 1.75], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const waveBOpacity = interpolate((frame + 15) % 30, [0, 30], [0.55, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   const logoSpring = spring({ frame, fps, config: { damping: 14, mass: 0.6 } });
 
   return (
     <AbsoluteFill style={{ backgroundColor: GREEN }}>
-      <div
-        style={{
-          position: "absolute",
-          top: "16%",
-          left: "14%",
-          width: 400,
-          height: 400,
-          borderRadius: "50%",
-          backgroundColor: ORANGE,
-          opacity: 0.09,
-          translate: `-200px ${-200 + circleAY}px`,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          top: "72%",
-          left: "84%",
-          width: 340,
-          height: 340,
-          borderRadius: "50%",
-          backgroundColor: DARK,
-          opacity: 0.15,
-          translate: `-170px ${-170 + circleBY}px`,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          top: "42%",
-          left: "50%",
-          width: 540,
-          height: 540,
-          borderRadius: "50%",
-          backgroundColor: ORANGE,
-          opacity: 0.07,
-          translate: "-270px -270px",
-          scale: circleCScale,
-        }}
-      />
-
       <AbsoluteFill
         style={{
           opacity: scene1Opacity,
-          scale: scene1ExitScale,
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
+        {frame < 10 ? (
+          <span
+            style={{
+              fontFamily: antonFontFamily,
+              fontSize: 150,
+              lineHeight: 1,
+              color: ORANGE,
+              textTransform: "uppercase",
+              scale: interpolate(flashA, [0, 1], [0.6, 1], {
+                extrapolateLeft: "clamp",
+              }),
+            }}
+          >
+            Ce samedi
+          </span>
+        ) : null}
+
+        {frame >= 10 && frame < 20 ? (
+          <span
+            style={{
+              fontFamily: antonFontFamily,
+              fontSize: 150,
+              lineHeight: 1,
+              color: WHITE,
+              textTransform: "uppercase",
+              scale: interpolate(flashB, [0, 1], [0.6, 1], {
+                extrapolateLeft: "clamp",
+              }),
+            }}
+          >
+            16h - 18h
+          </span>
+        ) : null}
+
+        {frame >= 20 ? (
+          <div
+            style={{
+              padding: "0 60px",
+              textAlign: "center",
+              rotate: `${interpolate(slam, [0, 1], [-3, 0], {
+                extrapolateLeft: "clamp",
+              })}deg`,
+              scale: interpolate(slam, [0, 1], [0.55, 1], {
+                extrapolateLeft: "clamp",
+              }),
+              opacity: interpolate(slam, [0, 0.5], [0, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              }),
+            }}
+          >
+            <span
+              style={{
+                fontFamily: antonFontFamily,
+                fontSize: 128,
+                lineHeight: 1.05,
+                color: WHITE,
+                textTransform: "uppercase",
+              }}
+            >
+              6 univers à vivre en 1 heure
+            </span>
+          </div>
+        ) : null}
+
         <div
           style={{
-            backgroundColor: ORANGE,
+            position: "absolute",
+            top: 104,
+            right: 46,
+            backgroundColor: RED,
             borderRadius: 999,
-            padding: "16px 38px",
-            scale: interpolate(badgeSpring, [0, 1], [0.4, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-              output: "perceptual-scale",
-            }),
-            opacity: interpolate(badgeSpring, [0, 1], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            }),
+            padding: "13px 26px",
+            opacity: badgeBlink,
           }}
         >
           <span
             style={{
               fontFamily: schibstedGroteskFontFamily,
               fontWeight: 700,
-              fontSize: 30,
+              fontSize: 26,
               color: WHITE,
-              letterSpacing: 1.5,
+              letterSpacing: 1,
               whiteSpace: "nowrap",
             }}
           >
-            100% GRATUIT • COURBEVOIE
-          </span>
-        </div>
-
-        <div
-          style={{
-            marginTop: 52,
-            padding: "0 62px",
-            textAlign: "center",
-            translate: `0px ${interpolate(titleSpring, [0, 1], [110, 0], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            })}px`,
-            opacity: interpolate(titleSpring, [0, 1], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            }),
-          }}
-        >
-          <span
-            style={{
-              fontFamily: antonFontFamily,
-              fontSize: 112,
-              lineHeight: 1.12,
-              color: WHITE,
-              textTransform: "uppercase",
-            }}
-          >
-            Inauguration &amp; Parcours Découverte
-          </span>
-        </div>
-
-        <div
-          style={{
-            marginTop: 42,
-            padding: "0 62px",
-            textAlign: "center",
-            translate: `0px ${interpolate(subtitleSpring, [0, 1], [50, 0], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            })}px`,
-            opacity: interpolate(subtitleSpring, [0, 1], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            }),
-          }}
-        >
-          <span
-            style={{
-              fontFamily: antonFontFamily,
-              fontSize: 54,
-              lineHeight: 1.1,
-              color: ORANGE,
-              textTransform: "uppercase",
-            }}
-          >
-            Ce samedi 12 septembre • 16h - 18h
+            🚨 DERNIERS ACCÈS
           </span>
         </div>
       </AbsoluteFill>
@@ -360,86 +378,71 @@ export const GrooveGraffInauguration: React.FC = () => {
         style={{
           opacity: scene2Opacity,
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
         <div
           style={{
-            padding: "0 70px",
-            textAlign: "center",
-            translate: `0px ${headerSlide2}px`,
-            opacity: headerOpacity2,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: antonFontFamily,
-              fontSize: 66,
-              lineHeight: 1.05,
-              color: AMBER,
-              textTransform: "uppercase",
-            }}
-          >
-            6 univers à vivre en 1 heure
-          </span>
-        </div>
-
-        <div
-          style={{
-            marginTop: 52,
             display: "flex",
             flexDirection: "column",
             gap: 28,
           }}
         >
-          <div style={{ display: "flex", gap: 32 }}>
-            <StepCard
-              emoji="🎵"
-              verb="Découvre"
-              label="Éveil Musical"
-              backgroundColor={DARK}
-              delay={85}
+          <div style={{ display: "flex", gap: 30 }}>
+            <UniverseCard
+              index={0}
+              title="Découvre"
+              subtitle="Éveil Musical"
+              backgroundColor={GREEN}
+              titleColor={WHITE}
+              numeralColor="#000000"
+              outlined
             />
-            <StepCard
-              emoji="🎧"
-              verb="Crée"
-              label="MAO"
+            <UniverseCard
+              index={1}
+              title="Crée"
+              subtitle="MAO"
               backgroundColor={DARK}
-              delay={93}
+              titleColor={WHITE}
+              numeralColor={WHITE}
             />
           </div>
-          <div style={{ display: "flex", gap: 32 }}>
-            <StepCard
-              emoji="🎹"
-              verb="Joue"
-              label="Piano"
+          <div style={{ display: "flex", gap: 30 }}>
+            <UniverseCard
+              index={2}
+              title="Joue"
+              subtitle="Piano"
               backgroundColor={BEIGE}
-              delay={101}
+              titleColor={DARK}
+              numeralColor="#000000"
             />
-            <StepCard
-              emoji="🎤"
-              verb="Ose"
-              label="Chant"
-              backgroundColor={DARK}
-              delay={109}
+            <UniverseCard
+              index={3}
+              title="Ose"
+              subtitle="Chant"
+              backgroundColor={GREEN}
+              titleColor={WHITE}
+              numeralColor="#000000"
+              outlined
             />
           </div>
-          <div style={{ display: "flex", gap: 32 }}>
-            <StepCard
-              emoji="✏️"
-              verb="Imagine"
-              label="Dessin"
+          <div style={{ display: "flex", gap: 30 }}>
+            <UniverseCard
+              index={4}
+              title="Imagine"
+              subtitle="Dessin"
               backgroundColor={DARK}
-              delay={117}
+              titleColor={WHITE}
+              numeralColor={WHITE}
             />
-            <StepCard
-              emoji="🎨"
-              verb="Laisse ta marque"
-              label="Street Art"
+            <UniverseCard
+              index={5}
+              title="Laisse ta marque"
+              subtitle="Street Art"
               backgroundColor={BEIGE}
-              delay={125}
+              titleColor={DARK}
+              numeralColor="#000000"
             />
           </div>
         </div>
@@ -449,70 +452,34 @@ export const GrooveGraffInauguration: React.FC = () => {
         style={{
           opacity: scene3Opacity,
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          padding: "0 55px",
+          padding: "0 50px",
         }}
       >
         <div
           style={{
-            backgroundColor: ORANGE,
-            borderRadius: 999,
-            padding: "15px 34px",
-            scale: interpolate(badge3Spring, [0, 1], [0.5, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-              output: "perceptual-scale",
-            }),
-            opacity: interpolate(badge3Spring, [0, 1], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            }),
-          }}
-        >
-          <span
-            style={{
-              fontFamily: schibstedGroteskFontFamily,
-              fontWeight: 700,
-              fontSize: 25,
-              color: WHITE,
-              whiteSpace: "nowrap",
-            }}
-          >
-            POUR TOUS : Enfants dès 6 mois • Ados • Adultes
-          </span>
-        </div>
-
-        <div
-          style={{
-            marginTop: 40,
             width: "100%",
             backgroundColor: DARK,
             borderRadius: 30,
-            padding: "64px 44px",
+            border: `5px solid ${ORANGE}`,
+            boxShadow: "0 0 60px rgba(255,140,0,0.55)",
+            padding: "62px 44px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            scale: interpolate(card3Spring, [0, 1], [0.84, 1], {
+            scale: interpolate(ctaZoom, [0, 1], [0.8, 1], {
               extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-              output: "perceptual-scale",
-            }),
-            opacity: interpolate(card3Spring, [0, 1], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
             }),
           }}
         >
           <div
             style={{
               textAlign: "center",
-              translate: `0px ${interpolate(title3Spring, [0, 1], [34, 0], {
+              scale: interpolate(ctaTitleSpring, [0, 1], [0.7, 1], {
                 extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-              })}px`,
-              opacity: interpolate(title3Spring, [0, 1], [0, 1], {
+              }),
+              opacity: interpolate(ctaTitleSpring, [0, 0.6], [0, 1], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               }),
@@ -521,95 +488,110 @@ export const GrooveGraffInauguration: React.FC = () => {
             <span
               style={{
                 fontFamily: antonFontFamily,
-                fontSize: 70,
-                lineHeight: 1.05,
+                fontSize: 66,
+                lineHeight: 1.08,
                 color: WHITE,
                 textTransform: "uppercase",
               }}
             >
-              Réserve ton créneau !
+              Attention : places très limitées !
             </span>
           </div>
 
           <div
             style={{
-              marginTop: 44,
-              backgroundColor: ORANGE,
-              borderRadius: 999,
-              padding: "26px 42px",
-              scale:
-                interpolate(ctaSpring, [0, 1], [0.5, 1], {
-                  extrapolateLeft: "clamp",
-                  extrapolateRight: "clamp",
-                  output: "perceptual-scale",
-                }) * ctaPulse,
-              opacity: interpolate(ctaSpring, [0, 1], [0, 1], {
+              position: "relative",
+              marginTop: 46,
+              scale: interpolate(ctaButtonSpring, [0, 1], [0.5, 1], {
+                extrapolateLeft: "clamp",
+              }),
+              opacity: interpolate(ctaButtonSpring, [0, 0.6], [0, 1], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               }),
             }}
           >
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                borderRadius: 999,
+                border: `4px solid ${ORANGE}`,
+                scale: waveAScale,
+                opacity: waveAOpacity,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                borderRadius: 999,
+                border: `4px solid ${ORANGE}`,
+                scale: waveBScale,
+                opacity: waveBOpacity,
+              }}
+            />
+            <div
+              style={{
+                position: "relative",
+                backgroundColor: ORANGE,
+                borderRadius: 999,
+                padding: "32px 46px",
+                boxShadow: "0 0 45px rgba(255,140,0,0.75)",
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: schibstedGroteskFontFamily,
+                  fontWeight: 700,
+                  fontSize: 36,
+                  color: WHITE,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.5,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Clique sur le lien en bio
+              </span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 40, opacity: urlOpacity }}>
             <span
               style={{
                 fontFamily: schibstedGroteskFontFamily,
                 fontWeight: 700,
                 fontSize: 34,
-                color: WHITE,
-                textTransform: "uppercase",
-                letterSpacing: 0.5,
-                whiteSpace: "nowrap",
-              }}
-            >
-              Clique sur le lien en bio
-            </span>
-          </div>
-
-          <div style={{ marginTop: 30, opacity: urlOpacity }}>
-            <span
-              style={{
-                fontFamily: schibstedGroteskFontFamily,
-                fontWeight: 700,
-                fontSize: 28,
-                color: AMBER,
+                color: BEIGE,
               }}
             >
               grooveandgraff.framer.website
             </span>
           </div>
 
-          <div
-            style={{
-              marginTop: 44,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 12,
-              opacity: infoOpacity,
-            }}
-          >
+          <div style={{ marginTop: 34, opacity: footerOpacity }}>
             <span
               style={{
                 fontFamily: schibstedGroteskFontFamily,
                 fontWeight: 600,
-                fontSize: 26,
+                fontSize: 25,
                 color: BEIGE,
+                whiteSpace: "nowrap",
               }}
             >
-              📍 18 rue Ficatier, Courbevoie
-            </span>
-            <span
-              style={{
-                fontFamily: schibstedGroteskFontFamily,
-                fontWeight: 600,
-                fontSize: 26,
-                color: BEIGE,
-              }}
-            >
-              📩 DM &quot;OPEN&quot; ou 📞 07 46 11 99 05
+              📍 18 rue Ficatier, Courbevoie • 📩 DM &quot;OPEN&quot;
             </span>
           </div>
         </div>
       </AbsoluteFill>
+
+      <Ticker />
 
       <Img
         src={staticFile("logo.svg")}
@@ -622,7 +604,6 @@ export const GrooveGraffInauguration: React.FC = () => {
           scale: interpolate(logoSpring, [0, 1], [0.6, 1], {
             extrapolateLeft: "clamp",
             extrapolateRight: "clamp",
-            output: "perceptual-scale",
           }),
           opacity: interpolate(logoSpring, [0, 1], [0, 1], {
             extrapolateLeft: "clamp",
