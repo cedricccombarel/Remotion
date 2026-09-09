@@ -5,6 +5,7 @@ import { HookScene } from "./scenes/HookScene";
 import { OfferScene } from "./scenes/OfferScene";
 import { CtaScene } from "./scenes/CtaScene";
 import { GrooveGraffJPOChant } from "./GrooveGraffJPOChant";
+import { GrooveGraffInauguration } from "./GrooveGraffInauguration";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -47,6 +48,14 @@ export const RemotionRoot: React.FC = () => {
         id="GrooveGraffJPOChant"
         component={GrooveGraffJPOChant}
         durationInFrames={300}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="GrooveGraffInauguration"
+        component={GrooveGraffInauguration}
+        durationInFrames={330}
         fps={30}
         width={1080}
         height={1920}
